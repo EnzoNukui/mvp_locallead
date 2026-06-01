@@ -1,0 +1,311 @@
+let estacaoAtual = null;
+let intervaloAtualizacao = null;
+
+let dadosEstacaoAtual = null;
+let dadosClimaAtual = null;
+let dadosLotacaoAtual = null;
+let dadosMapaAtual = null;
+let dadosStatusAtual = null;
+
+const linhaDetalhes = document.getElementById("linha-detalhes");
+
+const params = new URLSearchParams(window.location.search);
+const linhaSelecionada = params.get("linha");
+
+const configLinhas = {
+    "11": {
+        nome: "Linha 11-Coral",
+        sentidoCentro: "LUZ",
+        sentidoOposto: "ESTUDANTES",
+        imagem: "./assets/images/linha_11.jpg"
+    },
+    "12": {
+        nome: "Linha 12-Safira",
+        sentidoCentro: "BRAS",
+        sentidoOposto: "CALMON VIANA",
+        imagem: "./assets/images/linha_12.jpg"
+    }
+};
+
+let destinoAtual = configLinhas[linhaSelecionada].sentidoCentro;
+
+function obterLocalizacao() {
+    return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+}
+
+function renderizarTrens(trens) {
+    return trens.proximos.length > 0
+        ? trens.proximos.map(trem => `
+            <article class="trem-card">
+                <strong class="tempo-chegada">
+                    ${
+                        trem.chegaEm <= 0
+                            ? "Já"
+                            : `${trem.chegaEm} min`
+                    }
+                </strong>
+
+                <p class="horario-previsto">
+                    Previsto às ${trem.horarioEstimado}
+                </p>
+            </article>
+        `).join("")
+        : "<p>Nenhum trem encontrado para este horário.</p>";
+}
+
+async function atualizarProximosTrens() {
+    if (!estacaoAtual) return;
+
+    const trens = await buscarProximosTrens(
+        linhaSelecionada,
+        estacaoAtual,
+        destinoAtual
+    );
+
+    const container = document.getElementById("proximos-trens-container");
+
+    if (!container) return;
+
+    container.innerHTML = renderizarTrens(trens);
+}
+
+function renderizarTelaLinha(trens, mapa) {
+let classeOperacao = "operacao-indisponivel";
+
+if (dadosStatusAtual) {
+
+    const situacao =
+        dadosStatusAtual.situacao.toLowerCase();
+
+    if (
+        situacao.includes("normal")
+    ) {
+        classeOperacao = "operacao-normal";
+    }
+
+    else if (
+        situacao.includes("reduzida") ||
+        situacao.includes("atenção")
+    ) {
+        classeOperacao = "operacao-atencao";
+    }
+
+    else if (
+        situacao.includes("interrompida") ||
+        situacao.includes("paralisada")
+    ) {
+        classeOperacao = "operacao-alerta";
+    }
+}
+    linhaDetalhes.innerHTML = `
+    <header class="linha-topo">
+        <a href="./index.html" class="btn-voltar">
+    <span>←</span>
+    <span>Voltar</span>
+</a>
+
+        <div class="linha-titulo">
+
+    <img
+        src="${configLinhas[linhaSelecionada].imagem}"
+        alt="${configLinhas[linhaSelecionada].nome}"
+        class="linha-header-icone">
+
+    <h1>${configLinhas[linhaSelecionada].nome}</h1>
+
+</div>
+    </header>
+
+    <section class="clima-operacao-card">
+    <div class="clima-info">
+
+    <span class="clima-icone">
+        ${dadosClimaAtual.icone}
+    </span>
+
+    <div>
+        <p>${dadosClimaAtual.mensagem}</p>
+
+        <strong class="operacao-status ${classeOperacao}">
+            ● ${dadosStatusAtual ? dadosStatusAtual.situacao : "Status indisponível"}
+        </strong>
+    </div>
+
+    <h2>
+        ${dadosClimaAtual.temperatura}°
+    </h2>
+
+</div>
+</section>
+
+    <section class="estacao-atual-card">
+        <small>Sentido Atual</small>
+
+        <div class="estacao-linha">
+            <h2>${destinoAtual}</h2>
+
+            <button id="btn-trocar-sentido">
+            <i data-lucide="repeat"></i>
+                Trocar sentido
+            </button>
+        </div>
+    </section>
+
+    <section class="tabs-linha">
+        <button class="tab ativa">Horários</button>
+        <button class="tab">Vagões</button>
+    </section>
+
+    <section class="horarios-section">
+        <div id="proximos-trens-container">
+            ${renderizarTrens(trens)}
+        </div>
+    </section>
+
+    <section class="mapa-section">
+        <h2>Mapa da Linha</h2>
+
+        <div class="mapa-linha">
+           
+
+            ${(() => {
+            const indiceAtual = mapa.estacoes.findIndex(estacao =>
+                estacao.nome.toLowerCase() === dadosEstacaoAtual.estacao.nome.toLowerCase()
+            );
+
+            return mapa.estacoes.map((estacaoMapa, index) => {
+                const isEstacaoPassada = index < indiceAtual;
+                const isEstacaoAtual = index === indiceAtual;
+
+                return `
+            <div class="estacao-mapa 
+                ${isEstacaoPassada ? "estacao-passada" : ""} 
+                ${isEstacaoAtual ? "estacao-atual" : ""}
+            ">
+                <span class="ponto"></span>
+
+                <p>
+                    ${estacaoMapa.nome}
+
+                    ${isEstacaoAtual
+                        ? `<span class="tag-estacao-atual">Você está aqui</span>`
+                        : ""
+                    }
+                </p>
+            </div>
+        `;
+            }).join("");
+        })()}
+        </div>
+    </section>
+`;
+lucide.createIcons();
+
+    document
+        .getElementById("btn-trocar-sentido")
+        .addEventListener("click", trocarSentido);
+}
+
+async function trocarSentido() {
+    destinoAtual =
+        destinoAtual === configLinhas[linhaSelecionada].sentidoCentro
+            ? configLinhas[linhaSelecionada].sentidoOposto
+            : configLinhas[linhaSelecionada].sentidoCentro;
+
+    const trens = await buscarProximosTrens(
+        linhaSelecionada,
+        estacaoAtual,
+        destinoAtual
+    );
+
+    const mapa = await buscarMapaLinha(
+        linhaSelecionada,
+        destinoAtual
+    );
+
+    dadosMapaAtual = mapa;
+
+    renderizarTelaLinha(trens, mapa);
+
+    if (intervaloAtualizacao) {
+        clearInterval(intervaloAtualizacao);
+    }
+
+    intervaloAtualizacao = setInterval(
+        atualizarProximosTrens,
+        30000
+    );
+}
+
+async function carregarLinha() {
+    try {
+        linhaDetalhes.innerHTML = `
+            <h1>${configLinhas[linhaSelecionada].nome}</h1>
+            <p>Buscando sua localização...</p>
+        `;
+
+        const posicao = await obterLocalizacao();
+
+        const lat = posicao.coords.latitude;
+        const lon = posicao.coords.longitude;
+
+        const estacao = await buscarEstacaoProxima(
+            linhaSelecionada,
+            lat,
+            lon
+        );
+
+        estacaoAtual = estacao.estacao.nome;
+
+        const clima = await buscarClima(lat, lon);
+        const lotacao = await buscarLotacao(linhaSelecionada);
+
+        const statusLinhas = await buscarStatus();
+
+        const statusLinhaAtual = Array.isArray(statusLinhas)
+            ? statusLinhas.find(linha => linha.codigo === linhaSelecionada)
+            : null;
+
+        dadosStatusAtual = statusLinhaAtual;
+
+        const trens = await buscarProximosTrens(
+            linhaSelecionada,
+            estacaoAtual,
+            destinoAtual
+        );
+
+        const mapa = await buscarMapaLinha(
+            linhaSelecionada,
+            destinoAtual
+        );
+
+        dadosEstacaoAtual = estacao;
+        dadosClimaAtual = clima;
+        dadosLotacaoAtual = lotacao;
+        dadosMapaAtual = mapa;
+
+        renderizarTelaLinha(trens, mapa);
+
+        if (intervaloAtualizacao) {
+            clearInterval(intervaloAtualizacao);
+        }
+
+        intervaloAtualizacao = setInterval(
+            atualizarProximosTrens,
+            30000
+        );
+
+    } catch (erro) {
+        console.error(erro);
+
+        linhaDetalhes.innerHTML = `
+            <h1>Erro</h1>
+            <p>Não foi possível carregar os dados da linha.</p>
+        `;
+    }
+}
+
+lucide.createIcons();
+carregarLinha();
