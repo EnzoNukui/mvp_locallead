@@ -40,11 +40,10 @@ function renderizarTrens(trens) {
         ? trens.proximos.map(trem => `
             <article class="trem-card">
                 <strong class="tempo-chegada">
-                    ${
-                        trem.chegaEm <= 0
-                            ? "Já"
-                            : `${trem.chegaEm} min`
-                    }
+                    ${trem.chegaEm <= 0
+                ? "Já"
+                : `${trem.chegaEm} min`
+            }
                 </strong>
 
                 <p class="horario-previsto">
@@ -72,33 +71,60 @@ async function atualizarProximosTrens() {
 }
 
 function renderizarTelaLinha(trens, mapa) {
-let classeOperacao = "operacao-indisponivel";
+    let classeOperacao = "operacao-indisponivel";
 
-if (dadosStatusAtual) {
+    if (dadosStatusAtual) {
 
-    const situacao =
-        dadosStatusAtual.situacao.toLowerCase();
+        const situacao =
+            dadosStatusAtual.situacao.toLowerCase();
 
-    if (
-        situacao.includes("normal")
-    ) {
-        classeOperacao = "operacao-normal";
+        if (
+            situacao.includes("normal")
+        ) {
+            classeOperacao = "operacao-normal";
+        }
+
+        else if (
+            situacao.includes("reduzida") ||
+            situacao.includes("atenção")
+        ) {
+            classeOperacao = "operacao-atencao";
+        }
+
+        else if (
+            situacao.includes("interrompida") ||
+            situacao.includes("paralisada")
+        ) {
+            classeOperacao = "operacao-alerta";
+        }
     }
 
-    else if (
-        situacao.includes("reduzida") ||
-        situacao.includes("atenção")
-    ) {
-        classeOperacao = "operacao-atencao";
+    let avisoOperacao = "";
+
+    if (classeOperacao === "operacao-atencao") {
+        avisoOperacao = `
+        <div class="alerta-operacao alerta-amarela">
+            <strong>⚠️ Velocidade reduzida</strong>
+            <p>Os trens estão circulando com velocidade reduzida.</p>
+        </div>
+    `;
     }
 
-    else if (
-        situacao.includes("interrompida") ||
-        situacao.includes("paralisada")
-    ) {
-        classeOperacao = "operacao-alerta";
+    if (classeOperacao === "operacao-alerta") {
+        avisoOperacao = `
+        <div class="alerta-operacao alerta-vermelha">
+            <strong>🚫 Restrição operacional</strong>
+            <p>A linha opera com restrições.</p>
+        </div>
+    `;
     }
-}
+
+    let statusOperacao = `
+    <div class="operacao-topo ${classeOperacao}">
+        ● ${dadosStatusAtual ? dadosStatusAtual.situacao : "Status indisponível"}
+    </div>
+`;
+
     linhaDetalhes.innerHTML = `
     <header class="linha-topo">
         <a href="./index.html" class="btn-voltar">
@@ -118,6 +144,11 @@ if (dadosStatusAtual) {
 </div>
     </header>
 
+    ${statusOperacao}
+
+    ${avisoOperacao}
+
+
     <section class="clima-operacao-card">
     <div class="clima-info">
 
@@ -128,9 +159,6 @@ if (dadosStatusAtual) {
     <div>
         <p>${dadosClimaAtual.mensagem}</p>
 
-        <strong class="operacao-status ${classeOperacao}">
-            ● ${dadosStatusAtual ? dadosStatusAtual.situacao : "Status indisponível"}
-        </strong>
     </div>
 
     <h2>
@@ -201,7 +229,7 @@ if (dadosStatusAtual) {
         </div>
     </section>
 `;
-lucide.createIcons();
+    lucide.createIcons();
 
     document
         .getElementById("btn-trocar-sentido")
