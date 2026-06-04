@@ -2,11 +2,67 @@ function obterHoraAtual() {
     return new Date().getHours();
 }
 
+function obterTipoDia() {
+    const diaSemana = new Date().getDay();
+
+    if (diaSemana === 0) {
+        return "domingo";
+    }
+
+    if (diaSemana === 6) {
+        return "sabado";
+    }
+
+    return "util";
+}
+
 function buscarLotacaoPorHorario(linha) {
     const hora = obterHoraAtual();
+    const tipoDia = obterTipoDia();
 
     let nivel = "baixa";
     let mensagem = "Fluxo tranquilo neste horário.";
+
+    if (tipoDia === "domingo") {
+    return {
+        linha,
+        nivel: "baixa",
+        mensagem: "Fluxo reduzido devido à operação de domingo."
+    };
+}
+
+    if (tipoDia === "sabado") {
+
+    if (hora >= 5 && hora < 9) {
+        return {
+            linha,
+            nivel: "moderada",
+            mensagem: "Fluxo moderado no início da manhã de sábado."
+        };
+    }
+
+    if (hora >= 9 && hora < 17) {
+        return {
+            linha,
+            nivel: "baixa",
+            mensagem: "Fluxo tranquilo durante o dia."
+        };
+    }
+
+    if (hora >= 17 && hora < 20) {
+        return {
+            linha,
+            nivel: "moderada",
+            mensagem: "Fluxo moderado no final da tarde e início da noite."
+        };
+    }
+
+    return {
+        linha,
+        nivel: "baixa",
+        mensagem: "Fluxo reduzido neste horário de sábado."
+    };
+}
 
     if (hora >= 5 && hora < 6) {
         nivel = "moderada";
