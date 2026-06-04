@@ -6,6 +6,9 @@ let dadosClimaAtual = null;
 let dadosLotacaoAtual = null;
 let dadosMapaAtual = null;
 let dadosStatusAtual = null;
+let dadosVagoesAtual = null;
+
+let abaAtual = "horarios";
 
 const linhaDetalhes = document.getElementById("linha-detalhes");
 
@@ -68,6 +71,98 @@ async function atualizarProximosTrens() {
     if (!container) return;
 
     container.innerHTML = renderizarTrens(trens);
+}
+
+function renderizarVagoes(vagoes) {
+    if (!vagoes) {
+        return "<p>Informações dos vagões indisponíveis.</p>";
+    }
+
+    if (vagoes.nivelLinha === "sem-operacao") {
+    return `
+        <section class="vagoes-section">
+            <h2>Ocupação dos vagões</h2>
+
+            <div class="vagoes-sem-operacao">
+                <p>Lotação indisponível</p>
+                <small>
+                    A linha não possui operação neste horário.
+                </small>
+            </div>
+        </section>
+    `;
+}   
+
+    const frenteDireita =
+    destinoAtual === "BRAS" ||
+    destinoAtual === "LUZ";
+
+    const indiceAtual = dadosMapaAtual.estacoes.findIndex(estacao =>
+        estacao.nome.toLowerCase() === estacaoAtual.toLowerCase()
+    );
+
+    const proximasEstacoes = dadosMapaAtual.estacoes
+        .slice(indiceAtual + 1)
+        .map(estacao => estacao.nome.toLowerCase());
+
+    const saidasFiltradas = vagoes.saidas.filter(saida =>
+        proximasEstacoes.includes(saida.estacao.toLowerCase())
+    );
+
+    return `
+        <section class="vagoes-section">
+            <h2>Ocupação dos vagões</h2>
+
+            <div class="frente-trem ${frenteDireita ? "direita" : "esquerda"}">
+                <span>
+                ${frenteDireita ? "Frente do trem →" : "← Frente do trem"}
+                </span>
+            </div>
+
+            <div class="vagoes-lista">
+                ${vagoes.vagoes.map(vagao => `
+                    <div class="vagao vagao-${vagao.nivel}">
+                        <strong>${vagao.numero}</strong>
+                    </div>
+                `).join("")}
+            </div>
+
+            <div class="legenda-vagoes">
+    <div class="legenda-item">
+        <span class="legenda-cor baixa"></span>
+        <small>Baixa</small>
+    </div>
+
+    <div class="legenda-item">
+        <span class="legenda-cor moderada"></span>
+        <small>Moderada</small>
+    </div>
+
+    <div class="legenda-item">
+        <span class="legenda-cor alta"></span>
+        <small>Alta</small>
+    </div>
+</div>
+
+            <div class="vagao-recomendado">
+                <small>Menor lotação estimada</small>
+                <strong>Vagões ${vagoes.recomendado.numeros.join(", ")}</strong>
+                <p>${vagoes.recomendado.motivo}</p>
+            </div>
+
+            <div class="saidas-principais">
+    <h3>Saídas mais rápidas</h3>
+
+    ${saidasFiltradas.map(saida => `
+        <div class="saida-item">
+            <strong>${saida.estacao}</strong>
+            <span>Vagão ${saida.vagao}</span>
+            <p>${saida.motivo}</p>
+        </div>
+    `).join("")}
+</div>
+        </section>
+    `;
 }
 
 function renderizarTelaLinha(trens, mapa) {
@@ -182,15 +277,17 @@ function renderizarTelaLinha(trens, mapa) {
     </section>
 
     <section class="tabs-linha">
-        <button class="tab ativa">Horários</button>
-        <button class="tab">Vagões</button>
-    </section>
+    <button class="tab ativa" id="tab-horarios">Horários</button>
+    <button class="tab" id="tab-vagoes">Vagões</button>
+</section>
 
-    <section class="horarios-section">
+<section class="conteudo-tabs" id="conteudo-tabs">
+    <div class="horarios-section">
         <div id="proximos-trens-container">
             ${renderizarTrens(trens)}
         </div>
-    </section>
+    </div>
+</section>
 
     <section class="mapa-section">
         <h2>Mapa da Linha</h2>
@@ -234,8 +331,40 @@ function renderizarTelaLinha(trens, mapa) {
     document
         .getElementById("btn-trocar-sentido")
         .addEventListener("click", trocarSentido);
-}
 
+    const tabHorarios = document.getElementById("tab-horarios");
+    const tabVagoes = document.getElementById("tab-vagoes");
+    const conteudoTabs = document.getElementById("conteudo-tabs");
+
+    tabHorarios.addEventListener("click", () => {
+        abaAtual = "horarios";
+        tabHorarios.classList.add("ativa");
+        tabVagoes.classList.remove("ativa");
+
+        conteudoTabs.innerHTML = `
+        <div class="horarios-section">
+            <div id="proximos-trens-container">
+                ${renderizarTrens(trens)}
+            </div>
+        </div>
+    `;
+    });
+
+    tabVagoes.addEventListener("click", () => {
+        abaAtual = "vagoes";
+
+        tabVagoes.classList.add("ativa");
+        tabHorarios.classList.remove("ativa");
+
+        conteudoTabs.innerHTML = renderizarVagoes(dadosVagoesAtual);
+    });
+
+    if (abaAtual === "vagoes") {
+        tabVagoes.click();
+    }
+
+
+}
 async function trocarSentido() {
     destinoAtual =
         destinoAtual === configLinhas[linhaSelecionada].sentidoCentro
@@ -252,8 +381,14 @@ async function trocarSentido() {
         linhaSelecionada,
         destinoAtual
     );
-
     dadosMapaAtual = mapa;
+
+    const vagoes = await buscarVagoes(
+        linhaSelecionada,
+        destinoAtual
+    );
+
+    dadosVagoesAtual = vagoes;
 
     renderizarTelaLinha(trens, mapa);
 
@@ -273,6 +408,7 @@ async function carregarLinha() {
             <h1>${configLinhas[linhaSelecionada].nome}</h1>
             <p>Buscando sua localização...</p>
         `;
+
 
         const posicao = await obterLocalizacao();
 
@@ -308,6 +444,13 @@ async function carregarLinha() {
             linhaSelecionada,
             destinoAtual
         );
+
+        const vagoes = await buscarVagoes(
+            linhaSelecionada,
+            destinoAtual
+        );
+        dadosVagoesAtual = vagoes;
+
 
         dadosEstacaoAtual = estacao;
         dadosClimaAtual = clima;

@@ -20,6 +20,14 @@ function buscarLotacaoPorHorario(linha) {
     const hora = obterHoraAtual();
     const tipoDia = obterTipoDia();
 
+    if (hora < 4) {
+    return {
+        linha,
+        nivel: "sem-operacao",
+        mensagem: "Linha fora do horário de operação."
+    };
+}
+
     let nivel = "baixa";
     let mensagem = "Fluxo tranquilo neste horário.";
 
@@ -84,10 +92,10 @@ function buscarLotacaoPorHorario(linha) {
         mensagem = "Horário de pico no retorno para casa.";
     }
 
-    if (hora >= 20 || hora < 5) {
-        nivel = "baixa";
-        mensagem = "Fluxo reduzido neste horário.";
-    }
+    if (hora >= 20) {
+    nivel = "baixa";
+    mensagem = "Fluxo reduzido neste horário.";
+}
 
     return {
         linha,

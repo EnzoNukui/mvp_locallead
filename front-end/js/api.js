@@ -35,3 +35,11 @@ async function buscarLotacao(linha) {
     const resposta = await fetch(`${API_BASE_URL}/lotacao?linha=${linha}`);
     return resposta.json();
 }
+
+async function buscarVagoes(linha, destino) {
+    const resposta = await fetch(
+        `${API_BASE_URL}/vagoes?linha=${linha}&destino=${encodeURIComponent(destino)}`
+    );
+
+    return resposta.json();
+}

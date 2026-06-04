@@ -7,6 +7,7 @@ const estacaoRoutes = require("./routes/estacao.routes");
 const previsaoRoutes = require("./routes/previsao.routes");
 const mapaRoutes = require("./routes/mapa.routes");
 const lotacaoRoutes = require("./routes/lotacao.routes");
+const vagoesRoutes = require("./routes/vagoes.routes");
 
 const app = express();
 const PORT = 3000;
@@ -19,6 +20,7 @@ app.use(estacaoRoutes);
 app.use(previsaoRoutes);
 app.use(mapaRoutes);
 app.use(lotacaoRoutes);
+app.use(vagoesRoutes);
 
 app.get("/", (req, res) => {
     res.send("Servidor da LocalLead funcionando!");

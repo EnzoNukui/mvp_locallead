@@ -41,12 +41,12 @@ const saidasPrincipais = {
             {
                 estacao: "Brás",
                 vagao: 5,
-                motivo: "Melhor acesso às escadas e integração"
+                motivo: "Melhor acesso às escadas rolantes e integração"
             },
             {
                 estacao: "Luz",
                 vagao: 4,
-                motivo: "Melhor acesso às escadas rolantes e integrações"
+                motivo: "Melhor acesso às escadas rolantes  e integrações"
             }
         ]
     },
@@ -56,7 +56,7 @@ const saidasPrincipais = {
             {
                 estacao: "Calmon Viana",
                 vagao: 1,
-                motivo: "Melhor acesso às escadas e saída principal"
+                motivo: "Melhor acesso às escadas rolantes e saída principal"
             },
             {
                 estacao: "Tatuapé",
@@ -66,7 +66,7 @@ const saidasPrincipais = {
             {
                 estacao: "Brás",
                 vagao: 4,
-                motivo: "Melhor acesso às escadas e integração"
+                motivo: "Melhor acesso às escadas rolantes e integração"
             }
         ],
 
@@ -84,7 +84,7 @@ const saidasPrincipais = {
             {
                 estacao: "Brás",
                 vagao: 5,
-                motivo: "Melhor acesso às escadas e integração"
+                motivo: "Melhor acesso às escadas rolantes e integração"
             }
         ]
     }
@@ -133,21 +133,25 @@ function gerarOcupacaoVagoes(nivelLinha) {
     ];
 }
 
-function escolherVagaoRecomendado(vagoes) {
-    const vagaoBaixo = vagoes.find(vagao => vagao.nivel === "baixa");
+function escolherVagaoRecomendado(vagoes, nivelLinha) {
 
-    if (vagaoBaixo) {
+    if (nivelLinha === "baixa") {
         return {
-            numero: vagaoBaixo.numero,
-            motivo: "Menor lotação estimada"
+            numeros: [3, 6],
+            motivo: "Boa combinação entre conforto e acesso às estações."
         };
     }
 
-    const vagaoModerado = vagoes.find(vagao => vagao.nivel === "moderada");
+    if (nivelLinha === "moderada") {
+        return {
+            numeros: [2, 7],
+            motivo: "Menor concentração de passageiros neste horário."
+        };
+    }
 
     return {
-        numero: vagaoModerado.numero,
-        motivo: "Melhor opção disponível pela lotação"
+        numeros: [1, 8],
+        motivo: "Extremidades costumam ser menos disputadas nos horários de pico."
     };
 }
 
@@ -164,6 +168,18 @@ function buscarSaidasPorDestino(linha, destino) {
 function buscarVagoesPorLinha(linha, destino) {
     const lotacaoLinha = buscarLotacaoPorHorario(linha);
 
+if (lotacaoLinha.nivel === "sem-operacao") {
+    return {
+        linha,
+        destino,
+        nivelLinha: "sem-operacao",
+        mensagemLinha: "Sem operação neste horário.",
+        vagoes: [],
+        recomendado: null,
+        saidas: []
+    };
+}
+
     const ocupacao = gerarOcupacaoVagoes(lotacaoLinha.nivel);
 
     const vagoes = ocupacao.map((nivel, index) => {
@@ -179,7 +195,9 @@ function buscarVagoesPorLinha(linha, destino) {
         nivelLinha: lotacaoLinha.nivel,
         mensagemLinha: lotacaoLinha.mensagem,
         vagoes,
-        recomendado: escolherVagaoRecomendado(vagoes),
+        recomendado: escolherVagaoRecomendado(
+        vagoes,
+        lotacaoLinha.nivel),
         saidas: buscarSaidasPorDestino(linha, destino)
     };
 }
