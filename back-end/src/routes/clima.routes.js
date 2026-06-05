@@ -24,8 +24,7 @@ router.get("/clima", async (req, res) => {
     console.error("Erro completo na rota /clima:", erro);
 
     res.status(500).json({
-        erro: "Erro real na rota /clima",
-        detalhe: erro.message
+        erro: "Erro ao buscar clima"
     });
 }
 });
