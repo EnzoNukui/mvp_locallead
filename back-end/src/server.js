@@ -10,7 +10,6 @@ const lotacaoRoutes = require("./routes/lotacao.routes");
 const vagoesRoutes = require("./routes/vagoes.routes");
 
 const app = express();
-const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
