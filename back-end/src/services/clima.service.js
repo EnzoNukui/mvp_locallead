@@ -92,7 +92,33 @@ function interpretarClima(codigo) {
     };
 }
 
+const climaCache = new Map();
+
+const TEMPO_CACHE_CLIMA = 15 * 60 * 1000;
+
+function gerarChaveCache(lat, lon) {
+    const latArredondado = Number(lat).toFixed(2);
+    const lonArredondado = Number(lon).toFixed(2);
+
+    return `${latArredondado},${lonArredondado}`;
+}
+
 async function buscarClima(lat, lon) {
+    const chaveCache = gerarChaveCache(lat, lon);
+    const climaEmCache = climaCache.get(chaveCache);
+
+    const agora = Date.now();
+
+    if (
+        climaEmCache &&
+        agora - climaEmCache.salvoEm < TEMPO_CACHE_CLIMA
+    ) {
+        return {
+            ...climaEmCache.dados,
+            fonte: "cache"
+        };
+    }
+
     try {
         const parametros = new URLSearchParams({
             latitude: lat,
@@ -103,7 +129,8 @@ async function buscarClima(lat, lon) {
             timezone: "America/Sao_Paulo"
         });
 
-        const url = `https://api.open-meteo.com/v1/forecast?${parametros.toString()}`;
+        const url =
+            `https://api.open-meteo.com/v1/forecast?${parametros.toString()}`;
 
         const resposta = await fetch(url);
 
@@ -136,7 +163,7 @@ async function buscarClima(lat, lon) {
             mensagem = "Chance de chuva. Acompanhe possíveis alterações.";
         }
 
-        return {
+        const climaFinal = {
             temperatura,
             chuvaAgora,
             maiorProbabilidade,
@@ -144,11 +171,27 @@ async function buscarClima(lat, lon) {
             mensagem,
             icone: climaInterpretado.icone,
             descricao: climaInterpretado.descricao,
-            codigoClima
+            codigoClima,
+            fonte: "api"
         };
+
+        climaCache.set(chaveCache, {
+            salvoEm: agora,
+            dados: climaFinal
+        });
+
+        return climaFinal;
 
     } catch (erro) {
         console.error("Erro ao consultar clima:", erro.message);
+
+        if (climaEmCache) {
+            return {
+                ...climaEmCache.dados,
+                fonte: "cache-antigo",
+                mensagem: "Clima baseado na última consulta disponível."
+            };
+        }
 
         return {
             temperatura: "--",
@@ -159,7 +202,7 @@ async function buscarClima(lat, lon) {
             icone: "🌤️",
             descricao: "Clima indisponível",
             codigoClima: null,
-            erroDebug: erro.message
+            fonte: "fallback"
         };
     }
 }
