@@ -1,4 +1,4 @@
-const CACHE_NAME = "locallead-cache-v5";
+const CACHE_NAME = "locallead-cache-v6";
 
 const FILES_TO_CACHE = [
     "./",
@@ -16,6 +16,7 @@ const FILES_TO_CACHE = [
     "./js/home.js",
     "./js/linha.js",
 
+    "./assets/icon/favicon.ico",
     "./assets/images/logo_locallead.png",
     "./assets/images/imagem_trem_luz.png",
     "./assets/images/linha_11.jpg",
