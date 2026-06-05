@@ -1,15 +1,122 @@
+function interpretarClima(codigo) {
+    if (codigo === 0) {
+        return {
+            icone: "☀️",
+            descricao: "Céu limpo"
+        };
+    }
+
+    if (codigo === 1) {
+        return {
+            icone: "🌤️",
+            descricao: "Poucas nuvens"
+        };
+    }
+
+    if (codigo === 2) {
+        return {
+            icone: "⛅",
+            descricao: "Parcialmente nublado"
+        };
+    }
+
+    if (codigo === 3) {
+        return {
+            icone: "☁️",
+            descricao: "Nublado"
+        };
+    }
+
+    if (
+        codigo === 45 ||
+        codigo === 48
+    ) {
+        return {
+            icone: "🌫️",
+            descricao: "Neblina"
+        };
+    }
+
+    if (
+        codigo >= 51 &&
+        codigo <= 57
+    ) {
+        return {
+            icone: "🌦️",
+            descricao: "Garoa"
+        };
+    }
+
+    if (
+        codigo >= 61 &&
+        codigo <= 67
+    ) {
+        return {
+            icone: "🌧️",
+            descricao: "Chuva"
+        };
+    }
+
+    if (
+        codigo >= 71 &&
+        codigo <= 77
+    ) {
+        return {
+            icone: "🌨️",
+            descricao: "Neve"
+        };
+    }
+
+    if (
+        codigo >= 80 &&
+        codigo <= 82
+    ) {
+        return {
+            icone: "🌧️",
+            descricao: "Pancadas de chuva"
+        };
+    }
+
+    if (
+        codigo >= 95
+    ) {
+        return {
+            icone: "⛈️",
+            descricao: "Tempestade"
+        };
+    }
+
+    return {
+        icone: "🌤️",
+        descricao: "Condição variável"
+    };
+}
+
 async function buscarClima(lat, lon) {
     try {
-        const url =
-            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation,rain,weather_code&hourly=precipitation_probability,precipitation,rain&forecast_days=1&timezone=America%2FSao_Paulo`;
+        const parametros = new URLSearchParams({
+            latitude: lat,
+            longitude: lon,
+            current: "temperature_2m,precipitation,rain,weather_code",
+            hourly: "precipitation_probability,precipitation,rain",
+            forecast_days: "1",
+            timezone: "America/Sao_Paulo"
+        });
 
-        const resposta = await axios.get(url);
+        const url = `https://api.open-meteo.com/v1/forecast?${parametros.toString()}`;
 
-        const dados = resposta.data;
+        const resposta = await fetch(url);
+
+        if (!resposta.ok) {
+            throw new Error(`Erro Open-Meteo: ${resposta.status}`);
+        }
+
+        const dados = await resposta.json();
 
         const temperatura = dados.current.temperature_2m;
         const chuvaAgora = dados.current.rain || 0;
         const codigoClima = dados.current.weather_code;
+
         const climaInterpretado = interpretarClima(codigoClima);
 
         const probabilidades =
@@ -19,7 +126,7 @@ async function buscarClima(lat, lon) {
             Math.max(...probabilidades);
 
         let riscoAtraso = "baixo";
-        let mensagem = "Clima normal, sem previsões para atrasos";
+        let mensagem = "Clima normal, sem previsões para atrasos.";
 
         if (maiorProbabilidade >= 70 || chuvaAgora > 5) {
             riscoAtraso = "alto";
@@ -41,7 +148,7 @@ async function buscarClima(lat, lon) {
         };
 
     } catch (erro) {
-        console.error("Erro ao consultar API de clima:", erro.message);
+        console.error("Erro ao consultar clima:", erro.message);
 
         return {
             temperatura: "--",
@@ -55,3 +162,7 @@ async function buscarClima(lat, lon) {
         };
     }
 }
+
+module.exports = {
+    buscarClima
+};
