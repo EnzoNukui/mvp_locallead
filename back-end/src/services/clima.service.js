@@ -158,7 +158,8 @@ async function buscarClima(lat, lon) {
             mensagem: "Não foi possível consultar o clima no momento.",
             icone: "🌤️",
             descricao: "Clima indisponível",
-            codigoClima: null
+            codigoClima: null,
+            erroDebug: erro.message
         };
     }
 }
