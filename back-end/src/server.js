@@ -25,6 +25,12 @@ app.get("/", (req, res) => {
     res.send("Servidor da LocalLead funcionando!");
 });
 
+app.get("/teste-clima", (req, res) => {
+    res.json({
+        mensagem: "Rota de teste do clima funcionando"
+    });
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
