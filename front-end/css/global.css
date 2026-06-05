@@ -74,6 +74,7 @@ button {
 main {
     width: min(var(--container-width), 100% - 2rem);
     margin-inline: auto;
+    padding-bottom: 8rem;
 }
 
 .status-indicador {

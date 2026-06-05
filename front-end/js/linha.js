@@ -79,7 +79,7 @@ function renderizarVagoes(vagoes) {
     }
 
     if (vagoes.nivelLinha === "sem-operacao") {
-    return `
+        return `
         <section class="vagoes-section">
             <h2>Ocupação dos vagões</h2>
 
@@ -91,11 +91,11 @@ function renderizarVagoes(vagoes) {
             </div>
         </section>
     `;
-}   
+    }
 
     const frenteDireita =
-    destinoAtual === "BRAS" ||
-    destinoAtual === "LUZ";
+        destinoAtual === "BRAS" ||
+        destinoAtual === "LUZ";
 
     const indiceAtual = dadosMapaAtual.estacoes.findIndex(estacao =>
         estacao.nome.toLowerCase() === estacaoAtual.toLowerCase()
@@ -423,32 +423,37 @@ async function carregarLinha() {
 
         estacaoAtual = estacao.estacao.nome;
 
-        const clima = await buscarClima(lat, lon);
-        const lotacao = await buscarLotacao(linhaSelecionada);
-
-        const statusLinhas = await buscarStatus();
+        const [
+            clima,
+            lotacao,
+            statusLinhas,
+            trens,
+            mapa,
+            vagoes
+        ] = await Promise.all([
+            buscarClima(lat, lon),
+            buscarLotacao(linhaSelecionada),
+            buscarStatus(),
+            buscarProximosTrens(
+                linhaSelecionada,
+                estacaoAtual,
+                destinoAtual
+            ),
+            buscarMapaLinha(
+                linhaSelecionada,
+                destinoAtual
+            ),
+            buscarVagoes(
+                linhaSelecionada,
+                destinoAtual
+            )
+        ]);
 
         const statusLinhaAtual = Array.isArray(statusLinhas)
             ? statusLinhas.find(linha => linha.codigo === linhaSelecionada)
             : null;
 
         dadosStatusAtual = statusLinhaAtual;
-
-        const trens = await buscarProximosTrens(
-            linhaSelecionada,
-            estacaoAtual,
-            destinoAtual
-        );
-
-        const mapa = await buscarMapaLinha(
-            linhaSelecionada,
-            destinoAtual
-        );
-
-        const vagoes = await buscarVagoes(
-            linhaSelecionada,
-            destinoAtual
-        );
         dadosVagoesAtual = vagoes;
 
 
