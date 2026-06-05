@@ -1,3 +1,13 @@
+#linha-detalhes,
+.linha-topo,
+.clima-operacao-card,
+.estacao-atual-card,
+.tabs-linha,
+.conteudo-tabs,
+.mapa-section {
+    max-width: 100%;
+}
+
 main {
   padding-bottom: 5rem;
 }

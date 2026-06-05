@@ -1,3 +1,10 @@
+.vagoes-section,
+.vagoes-lista,
+.saidas-principais,
+.vagao-recomendado {
+    max-width: 100%;
+}
+
 .vagoes-section {
     display: flex;
     flex-direction: column;
