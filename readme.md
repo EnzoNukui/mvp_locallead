@@ -6,6 +6,14 @@ O projeto foi desenvolvido como MVP acadêmico, com foco inicial nas Linhas 11-C
 
 ---
 
+## 🗂️ Arquitetura da LocallLead
+
+A estrutura do projeto foi organizada separando o frontend, backend, dados GTFS, rotas, serviços e arquivos do PWA.
+
+![Estrutura do projeto](./docs/images/diagrama_visual.png)
+
+---
+
 ## 🔗 Acesse o projeto
 
 - Aplicação publicada: [LocalLead na Vercel](https://locallead.vercel.app/)
@@ -42,6 +50,8 @@ O objetivo do projeto é oferecer uma solução acessível para consulta rápida
 
 ### Home
 
+![Home do LocalLead](./docs/images/home_locallead.jpg)
+
 - Listagem das linhas disponíveis.
 - Indicação visual do status operacional.
 - Exibição resumida de lotação e intervalo.
@@ -49,6 +59,8 @@ O objetivo do projeto é oferecer uma solução acessível para consulta rápida
 - Interface responsiva com navegação inferior em dispositivos móveis.
 
 ### Tela da linha
+
+![Tela da linha](./docs/images/linha_locallead.jpg)
 
 - Identificação da linha selecionada.
 - Status operacional da linha.
@@ -61,6 +73,8 @@ O objetivo do projeto é oferecer uma solução acessível para consulta rápida
 - Aba de ocupação dos vagões.
 
 ### Sistema de vagões
+
+![Sistema de vagões](./docs/images/vagoes_locallead.jpg)
 
 - Estimativa de ocupação por vagão.
 - Cores para indicar baixa, moderada e alta ocupação.
