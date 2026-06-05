@@ -21,19 +21,13 @@ router.get("/clima", async (req, res) => {
         res.json(clima);
 
     } catch (erro) {
-        console.error("Erro completo na rota /clima:", erro);
+    console.error("Erro completo na rota /clima:", erro);
 
-        res.json({
-            temperatura: "--",
-            chuvaAgora: 0,
-            maiorProbabilidade: 0,
-            riscoAtraso: "indisponível",
-            mensagem: "Não foi possível consultar o clima no momento.",
-            icone: "🌤️",
-            descricao: "Clima indisponível",
-            codigoClima: null
-        });
-    }
+    res.status(500).json({
+        erro: "Erro real na rota /clima",
+        detalhe: erro.message
+    });
+}
 });
 
 module.exports = router;
