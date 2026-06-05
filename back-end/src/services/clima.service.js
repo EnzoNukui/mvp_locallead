@@ -74,3 +74,7 @@ async function buscarClima(lat, lon) {
         fonte: "wttr.in"
     };
 }
+
+module.exports = {
+    buscarClima
+};
