@@ -24,6 +24,48 @@ function obterIconePorDescricao(descricao) {
     return "🌤️";
 }
 
+function traduzirDescricaoClima(descricao) {
+    const texto = descricao.toLowerCase();
+
+    if (texto.includes("cloudy") || texto.includes("overcast")) {
+        return "Nublado";
+    }
+
+    if (texto.includes("partly cloudy")) {
+        return "Parcialmente nublado";
+    }
+
+    if (texto.includes("clear")) {
+        return "Céu limpo";
+    }
+
+    if (texto.includes("sunny")) {
+        return "Ensolarado";
+    }
+
+    if (texto.includes("rain")) {
+        return "Chuva";
+    }
+
+    if (texto.includes("light rain")) {
+        return "Chuva fraca";
+    }
+
+    if (texto.includes("heavy rain")) {
+        return "Chuva forte";
+    }
+
+    if (texto.includes("mist") || texto.includes("fog")) {
+        return "Neblina";
+    }
+
+    if (texto.includes("thunder") || texto.includes("storm")) {
+        return "Tempestade";
+    }
+
+    return "Condição variável";
+}
+
 async function buscarClima(lat, lon) {
     const url = `https://wttr.in/${lat},${lon}?format=j1`;
 
