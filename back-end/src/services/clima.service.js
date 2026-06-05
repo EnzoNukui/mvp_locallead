@@ -1,23 +1,54 @@
 function obterIconePorDescricao(descricao) {
     const texto = descricao.toLowerCase();
 
-    if (texto.includes("thunder") || texto.includes("storm")) {
+    if (
+        texto.includes("tempestade") ||
+        texto.includes("thunder") ||
+        texto.includes("storm")
+    ) {
         return "⛈️";
     }
 
-    if (texto.includes("rain") || texto.includes("drizzle") || texto.includes("shower")) {
+    if (
+        texto.includes("chuva") ||
+        texto.includes("rain") ||
+        texto.includes("drizzle") ||
+        texto.includes("shower")
+    ) {
         return "🌧️";
     }
 
-    if (texto.includes("fog") || texto.includes("mist")) {
+    if (
+        texto.includes("neblina") ||
+        texto.includes("fog") ||
+        texto.includes("mist")
+    ) {
         return "🌫️";
     }
 
-    if (texto.includes("cloud") || texto.includes("overcast")) {
+    if (
+        texto.includes("parcialmente") ||
+        texto.includes("partly")
+    ) {
+        return "⛅";
+    }
+
+    if (
+        texto.includes("nublado") ||
+        texto.includes("cloud") ||
+        texto.includes("overcast")
+    ) {
         return "☁️";
     }
 
-    if (texto.includes("sun") || texto.includes("clear")) {
+
+    if (
+        texto.includes("ensolarado") ||
+        texto.includes("céu limpo") ||
+        texto.includes("sol") ||
+        texto.includes("sun") ||
+        texto.includes("clear")
+    ) {
         return "☀️";
     }
 
