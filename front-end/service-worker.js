@@ -1,4 +1,4 @@
-const CACHE_NAME = "locallead-cache-v1";
+const CACHE_NAME = "locallead-cache-v5";
 
 const FILES_TO_CACHE = [
     "./",
