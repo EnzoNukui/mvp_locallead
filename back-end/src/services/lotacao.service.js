@@ -1,5 +1,11 @@
 function obterHoraAtual() {
-    return new Date().getHours();
+    const agoraBrasil = new Date().toLocaleString("en-US", {
+        timeZone: "America/Sao_Paulo"
+    });
+
+    const dataBrasil = new Date(agoraBrasil);
+
+    return dataBrasil.getHours();
 }
 
 function obterTipoDia() {

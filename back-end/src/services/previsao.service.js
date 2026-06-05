@@ -115,11 +115,14 @@ function buscarProximosTrens(linha, estacao, destino) {
     const deslocamentoEstacao =
         calcularDeslocamentoEstacao(tripId, estacao);
 
-    const agora = new Date();
+    const agoraBrasil = new Date().toLocaleString("en-US", {
+        timeZone: "America/Sao_Paulo"
+    });
+
+    const dataBrasil = new Date(agoraBrasil);
 
     const minutosAgora =
-        agora.getHours() * 60 +
-        agora.getMinutes();
+    dataBrasil.getHours() * 60 + dataBrasil.getMinutes();
 
     const faixaFimSemana = buscarFaixaFimSemana(
         linha,
