@@ -86,6 +86,7 @@ async function buscarClima(lat, lon) {
     const temperatura = Number(climaAtual.temp_C);
     const chuvaAgora = Number(climaAtual.precipMM || 0);
     const descricao = climaAtual.weatherDesc[0].value;
+    const descricaoTraduzida = traduzirDescricaoClima(descricao);
 
     const horasHoje = dados.weather[0].hourly.slice(0, 6);
 
@@ -110,8 +111,8 @@ async function buscarClima(lat, lon) {
         maiorProbabilidade,
         riscoAtraso,
         mensagem,
-        icone: obterIconePorDescricao(descricao),
-        descricao,
+        icone: obterIconePorDescricao(descricaoTraduzida),
+        descricao: descricaoTraduzida,
         codigoClima: climaAtual.weatherCode,
         fonte: "wttr.in"
     };
