@@ -55,8 +55,8 @@ const saidasPrincipais = {
         "BRAS": [
             {
                 estacao: "Calmon Viana",
-                vagao: 1,
-                motivo: "Melhor acesso às escadas rolantes e saída principal"
+                vagao: 3,
+                motivo: "Melhor acesso às escadas e saída principal"
             },
             {
                 estacao: "Tatuapé",
@@ -73,7 +73,7 @@ const saidasPrincipais = {
         "CALMON VIANA": [
             {
                 estacao: "Calmon Viana",
-                vagao: 8,
+                vagao: 4,
                 motivo: "Melhor acesso às escadas e saída principal"
             },
             {
